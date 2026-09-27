@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HarmoniSutra — Voice into Mandala</title>
 <meta name="description" content="An audio-visual instrument that turns the physics of your voice into generative mandala art, in real time.">
-
-<!-- Google Fonts: Fraunces (display serif, evokes manuscript/sacred-geometry texture)
-     Work Sans (clean geometric sans for UI body copy)
-     JetBrains Mono (tabular figures for live telemetry readouts) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -16,13 +12,6 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- ============================================================
-       HERO / STAGE
-       The canvas IS the interface. Everything else floats above it
-       as translucent glass panels so the generative art stays the
-       focal point at all times.
-     ============================================================ -->
   <main class="stage" aria-label="Mandala visualization stage">
 
     <canvas id="mandalaCanvas" aria-hidden="true"></canvas>
@@ -36,9 +25,7 @@
 
   </main>
 
-  <!-- ============================================================
-       HEADER — brand mark + primary transport controls
-     ============================================================ -->
+
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">&#10022;</span>
@@ -84,10 +71,7 @@
     </div>
   </header>
 
-  <!-- ============================================================
-       TELEMETRY HUD — floating glass panel, top-right
-       Live waveform + spectrum + derived acoustic features.
-     ============================================================ -->
+  
   <aside class="hud" id="hud" aria-label="Live acoustic telemetry">
     <p class="hud-title" id="hudTitle">Live telemetry</p>
     <div class="hud-row hud-scopes">
@@ -137,10 +121,7 @@
     </div>
   </aside>
 
-  <!-- ============================================================
-       SOUND LESSON CARD — floating glass panel, bottom-left
-       Plain-language physics explanation, regenerated live.
-     ============================================================ -->
+  
   <section class="lesson" id="lessonCard" aria-label="Live acoustics lesson" aria-live="polite">
     <p class="lesson-kicker" id="lessonKicker">what your voice is doing, in physics</p>
     <p class="lesson-body" id="lessonBody">Make a sound to begin the lesson. HarmoniSutra reads your voice's fundamental frequency, loudness and timbre, and explains the standing-wave math behind the shape it draws.</p>
