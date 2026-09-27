@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HarmoniSutra — Voice into Mandala</title>
+<meta name="description" content="An audio-visual instrument that turns the physics of your voice into generative mandala art, in real time.">
+
+<!-- Google Fonts: Fraunces (display serif, evokes manuscript/sacred-geometry texture)
+     Work Sans (clean geometric sans for UI body copy)
+     JetBrains Mono (tabular figures for live telemetry readouts) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       HERO / STAGE
+       The canvas IS the interface. Everything else floats above it
+       as translucent glass panels so the generative art stays the
+       focal point at all times.
+     ============================================================ -->
+  <main class="stage" aria-label="Mandala visualization stage">
+
+    <canvas id="mandalaCanvas" aria-hidden="true"></canvas>
+
+    <!-- Idle state message shown before any audio source is active -->
+    <div class="idle-overlay" id="idleOverlay">
+      <p class="idle-eyebrow">an instrument for seeing sound</p>
+      <h1 class="idle-title">HarmoniSutra</h1>
+      <p class="idle-sub">Speak, sing, or hum — the physics of your voice becomes a living mandala. Pitch draws its symmetry, volume draws its depth, timbre draws its texture.</p>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       HEADER — brand mark + primary transport controls
+     ============================================================ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">&#10022;</span>
+      <span class="brand-name">HarmoniSutra</span>
+    </div>
+
+    <div class="transport" role="group" aria-label="Audio source controls">
+      <button id="micBtn" class="btn btn-primary" type="button" aria-pressed="false">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+        <span class="btn-label">Listen with mic</span>
+      </button>
+
+      <label class="btn btn-ghost" for="fileInput">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 7 8h3v6h4V8h3l-5-5Zm-7 15v2h14v-2H5Z"/></svg>
+        <span class="btn-label">Upload audio</span>
+      </label>
+      <input type="file" id="fileInput" accept="audio/*" hidden>
+
+      <button id="playPauseBtn" class="btn btn-ghost" type="button" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span class="btn-label">Play</span>
+      </button>
+
+      <button id="finishBtn" class="btn btn-primary" type="button" hidden disabled>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>
+        <span class="btn-label">Reveal final mandala</span>
+      </button>
+
+      <button id="resetBtn" class="btn btn-ghost" type="button" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></svg>
+        <span class="btn-label">New session</span>
+      </button>
+    </div>
+
+    <div class="transport transport-right">
+      <button id="freezeBtn" class="btn btn-ghost" type="button" disabled>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a1 1 0 0 1 1 1v4.59l3.29-3.3 1.42 1.42L13 10.41V13h2.59l4.7-4.71 1.42 1.42-3.3 3.29H23v2h-4.59l3.3 3.29-1.42 1.42-4.7-4.71H13v2.59l4.71 4.7-1.42 1.42-3.29-3.3V22h-2v-4.59l-3.29 3.3-1.42-1.42 4.71-4.7V13H8.41l-4.7 4.71-1.42-1.42 3.3-3.29H1v-2h4.59l-3.3-3.29 1.42-1.42 4.7 4.71H11V8.41L6.29 3.7l1.42-1.42L11 6.59V3a1 1 0 0 1 1-1Z"/></svg>
+        <span class="btn-label">Freeze &amp; export</span>
+      </button>
+      <button id="hudToggle" class="btn btn-icon-only" type="button" aria-pressed="true" aria-label="Toggle telemetry panel">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h4v8H3v-8Zm7-9h4v17h-4V4Zm7 5h4v12h-4V9Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       TELEMETRY HUD — floating glass panel, top-right
+       Live waveform + spectrum + derived acoustic features.
+     ============================================================ -->
+  <aside class="hud" id="hud" aria-label="Live acoustic telemetry">
+    <p class="hud-title" id="hudTitle">Live telemetry</p>
+    <div class="hud-row hud-scopes">
+      <div class="scope">
+        <p class="scope-label">Waveform &middot; time domain</p>
+        <canvas id="waveCanvas" width="280" height="64"></canvas>
+      </div>
+      <div class="scope">
+        <p class="scope-label">Spectrum &middot; frequency domain</p>
+        <canvas id="specCanvas" width="280" height="64"></canvas>
+      </div>
+    </div>
+
+    <div class="hud-row hud-readout">
+      <div class="stat">
+        <p class="stat-label">Fundamental</p>
+        <p class="stat-value"><span id="pitchHz">&mdash;</span><span class="stat-unit">Hz</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Note</p>
+        <p class="stat-value"><span id="noteName">&mdash;</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Amplitude</p>
+        <p class="stat-value"><span id="rmsVal">&mdash;</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Brightness</p>
+        <p class="stat-value"><span id="centroidVal">&mdash;</span><span class="stat-unit">Hz</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Rolloff</p>
+        <p class="stat-value"><span id="rolloffVal">&mdash;</span><span class="stat-unit">Hz</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Flatness</p>
+        <p class="stat-value"><span id="flatnessVal">&mdash;</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Duration</p>
+        <p class="stat-value"><span id="durationVal">&mdash;</span><span class="stat-unit">s</span></p>
+      </div>
+    </div>
+
+    <div class="hud-row">
+      <p class="classification" id="classification">Awaiting sound&hellip;</p>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       SOUND LESSON CARD — floating glass panel, bottom-left
+       Plain-language physics explanation, regenerated live.
+     ============================================================ -->
+  <section class="lesson" id="lessonCard" aria-label="Live acoustics lesson" aria-live="polite">
+    <p class="lesson-kicker" id="lessonKicker">what your voice is doing, in physics</p>
+    <p class="lesson-body" id="lessonBody">Make a sound to begin the lesson. HarmoniSutra reads your voice's fundamental frequency, loudness and timbre, and explains the standing-wave math behind the shape it draws.</p>
+  </section>
+
+  <!-- Status region for screen readers: permission state, errors -->
+  <div id="srStatus" class="sr-only" role="status" aria-live="assertive"></div>
+
+  <!-- Export capture flash -->
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

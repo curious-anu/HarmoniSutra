@@ -1,0 +1,327 @@
+/* ==========================================================================
+   HarmoniSutra — Design tokens
+   Palette:  #0B0E1A deep space navy (ground)   #141A2E panel navy (glass base)
+             #F1E9D8 parchment (primary text)   #C9A15C temple gold (primary accent)
+             #7C5CBF dusk violet (secondary accent, mandala-adjacent)
+             #4FA3A0 verdigris (data / telemetry accent — kept distinct from
+                                gold so live numbers never compete with controls)
+   Type:     Fraunces (display serif, headline + brand) / Work Sans (UI body)
+             / JetBrains Mono (tabular figures for telemetry only)
+   ========================================================================== */
+
+:root {
+  --ink:        #0B0E1A;
+  --panel:      #141A2Ecc;
+  --panel-solid:#141A2E;
+  --hairline:   #2B3350;
+  --parchment:  #F1E9D8;
+  --parchment-dim: #B9B2A0;
+  --gold:       #C9A15C;
+  --gold-bright:#E4C384;
+  --violet:     #7C5CBF;
+  --verdigris:  #4FA3A0;
+  --danger:     #C6604F;
+
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-body:    'Work Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 14px;
+  --gap: 1rem;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--ink);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  overflow: hidden; /* the canvas stage fills the viewport; panels float above it */
+}
+
+button, input, label { font-family: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- stage */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 42%, #1A2138 0%, var(--ink) 70%);
+}
+
+#mandalaCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.idle-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1.5rem;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.idle-overlay.hidden { opacity: 0; }
+
+.idle-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+
+.idle-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-optical-sizing: auto;
+  color: var(--parchment);
+}
+
+.idle-sub {
+  margin: 0;
+  max-width: 38ch;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--parchment-dim);
+}
+
+/* ---------------------------------------------------------------- topbar */
+
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 0.9rem 1.25rem;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+}
+.brand-mark { color: var(--gold); font-size: 1.1rem; }
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.transport {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.transport-right { margin-left: auto; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  color: var(--parchment);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+.btn:hover { border-color: var(--gold); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:disabled:hover { border-color: var(--hairline); }
+
+.btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.btn-primary:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+.btn-primary[aria-pressed="true"] {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--parchment);
+}
+
+.btn-icon-only { padding: 0.5rem; }
+.icon { width: 18px; height: 18px; fill: currentColor; flex: none; }
+
+/* Listening pulse — the one deliberate ambient motion in the whole UI,
+   tied directly to the mic being live rather than decorative looping. */
+.btn-primary[aria-pressed="true"] .icon {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ---------------------------------------------------------------- hud */
+
+.hud {
+  position: fixed;
+  top: 4.6rem;
+  right: 1.25rem;
+  width: 300px;
+  max-width: calc(100vw - 2.5rem);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  z-index: 15;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.hud.hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+
+.hud-title {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+}
+
+.hud-row + .hud-row {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.hud-scopes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.scope-label {
+  margin: 0 0 0.3rem;
+  font-size: 0.65rem;
+  color: var(--parchment-dim);
+}
+.scope canvas {
+  width: 100%;
+  height: 56px;
+  border-radius: 6px;
+  background: #0B0E1A80;
+  display: block;
+}
+
+.hud-readout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem 0.5rem;
+}
+.stat-label {
+  margin: 0;
+  font-size: 0.64rem;
+  color: var(--parchment-dim);
+}
+.stat-value {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--verdigris);
+}
+.stat-unit {
+  font-size: 0.68rem;
+  color: var(--parchment-dim);
+  margin-left: 0.15rem;
+}
+
+.classification {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gold-bright);
+}
+
+/* ---------------------------------------------------------------- lesson */
+
+.lesson {
+  position: fixed;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  width: 360px;
+  max-width: calc(100vw - 2.5rem);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.05rem;
+  z-index: 15;
+}
+
+.lesson-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  color: var(--violet);
+}
+.lesson-body {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--parchment);
+}
+
+/* ---------------------------------------------------------------- flash */
+
+.flash {
+  position: fixed; inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+.flash.fire { animation: flash-fire 0.4s ease-out; }
+@keyframes flash-fire {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* ---------------------------------------------------------------- responsive */
+
+@media (max-width: 760px) {
+  .topbar { flex-wrap: wrap; }
+  .btn-label { display: none; }
+  .btn { padding: 0.55rem; }
+  .hud { width: calc(100vw - 2.5rem); top: 7.6rem; }
+  .lesson { width: calc(100vw - 2.5rem); bottom: 1rem; }
+  .hud-scopes { grid-template-columns: 1fr; }
+  .hud-readout { grid-template-columns: repeat(2, 1fr); }
+}
